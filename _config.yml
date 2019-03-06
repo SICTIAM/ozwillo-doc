@@ -1,2 +1,4 @@
 exclude: ['docker-compose.yml', 'vendor', 'README.md', 'Gemfile.lock', 'Gemfile', 'CNAME', 'css/main.less']
 markdown: kramdown
+
+theme: jekyll-theme-cayman
