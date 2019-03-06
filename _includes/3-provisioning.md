@@ -1,10 +1,10 @@
 ## Provisioning
 {: #s3-provisioning}
 
-This section explains the provisioning protocol triggered between Ozwillo and the provider APIs when a [purchase act](#def-purchase-act) occurs on the portal. The outcome of a successful provisioning is an application instance that is both:
+This section explains the provisioning protocol triggered between the platform and the provider APIs when a [purchase act](#def-purchase-act) occurs on the portal. The outcome of a successful provisioning is an application instance that is both:
 
 1. allocated and reachable on the provider servers
-2. declared with appropriate settings, especially regarding access rights, on Ozwillo
+2. declared with appropriate settings, especially regarding access rights
 
 where (2) enables the creation of [desk shortcuts](#def-desk-shortcuts) so that users can access (1)
 {: .where}
@@ -14,7 +14,7 @@ The creation of an application instance on the provider side may imply configura
 ### Prerequesite
 {: #s3-prerequesite}
 
-Since provisioning starts when a user performs a purchase act, it means the purchased application is declared in the [catalog](#def-catalog) **and** Ozwillo knows how to forward the request to the provider through its [app factory](#def-app-factory).
+Since provisioning starts when a user performs a purchase act, it means the purchased application is declared in the [catalog](#def-catalog) **and** the platform knows how to forward the request to the provider through its [app factory](#def-app-factory).
 
 Thus the following information is needed to have a well described *and* installable application in the catalog:
 
@@ -69,10 +69,10 @@ There is no official spec about secret strings, but 30 characters within a rich 
 
 ##### Summary
 
-You will likely need to read the remainder of this section to fully understand how fields are used, especially those related to the app factory. It means these setup steps are required before receiving provisioning requests from Ozwillo:
+You will likely need to read the remainder of this section to fully understand how fields are used, especially those related to the app factory. It means these setup steps are required before receiving provisioning requests :
 
 1. gather all parameters info needed as described in the previous tables
-2. send it to <a href="mailto:providers@ozwillo.com">providers@ozwillo.com</a> along with your display name as an application provider (typically the name of your company)
+2. send it to <a href="mailto:dev@sictiam.fr">dev@sictiam.fr</a> along with your display name as an application provider (typically the name of your company)
 3. you will be notified when the application is made available on the [preproduction](#s2-preproduction-sandbox)
 
 To ease the process, you may submit a first and simplified version of the commercial info fields, focusing on simple versions of **required** fields, and resubmit it later with enriched contents.
@@ -80,14 +80,14 @@ To ease the process, you may submit a first and simplified version of the commer
 ### Protocol
 {: #s3-protocol}
 
-#### #1 Ozwillo request
+#### #1 PSN request
 {: #s3-1-ozwillo-request}
 
 ##### Description
 
-When a purchase act occurs, Ozwillo creates a new [application instance](def-application-instance) in its catalog, in a pending state (since it has not been provisioned for the moment). This instance is given a unique and constant `instance_id` and credentials (`client_id` and `client_secret`). The `client_secret` must remain to be known only by Ozwillo and the provider.
+When a purchase act occurs, the platform creates a new [application instance](def-application-instance) in its catalog, in a pending state (since it has not been provisioned for the moment). This instance is given a unique and constant `instance_id` and credentials (`client_id` and `client_secret`). The `client_secret` must remain to be known only by the platform and the provider.
 
-The current behavior of Ozwillo is that `instance_id` and `client_id` are given the same unique GUID value, but this is really an implementation detail subject to change. The spec is that `instance_id` is an identifier that won't change over time, when `client_id` may be refreshed.
+The current behavior of the platform is that `instance_id` and `client_id` are given the same unique GUID value, but this is really an implementation detail subject to change. The spec is that `instance_id` is an identifier that won't change over time, when `client_id` may be refreshed.
 {: .focus .important}
 
 ##### Request command
@@ -95,7 +95,7 @@ The current behavior of Ozwillo is that `instance_id` and `client_id` are given 
 Don't forget to read our [conventions](#s1-authorized-users) and [recommendations](#s2-recommendations).
 {: .focus .soft}
 
-The following HTTP request is sent from Ozwillo to the provider at `instantiation_uri` (decomposed in `instantiation_path` and `instantiation_host` below). 
+The following HTTP request is sent from the platform to the provider at `instantiation_uri` (decomposed in `instantiation_path` and `instantiation_host` below). 
 
 <pre>
 POST {instantiation_path} HTTP/1.1
@@ -108,7 +108,7 @@ Content-Type: application/json;charset=UTF-8
 The body of this request is encoded in JSON. A HMAC-SHA1 hash of the body is computed using the application's `instantiation_secret` as key. This computed HMAC-SHA1 signature is then inserted in the `X-Hub-Signature` header in hexadecimal, prefixed with the string `sha1=` (as per <a href="https://pubsubhubbub.github.io/PubSubHubbub/pubsubhubbub-core-0.4.html#authednotify" target="_blank">PubSubHubbub Core 0.4</a>).
 {: #ref-hmac-signature}
 
-As introduced in [Recognize and trust Ozwillo](#s2-trust-ozwillo), the provider must recompute the signature of the request body with the same secret key and method. If signatures match, this reasonably certifies the instantiation request comes from Ozwillo (which is the only one knowing the `instantiation_secret`) and then can be trusted. If not, you may log the request for further analysis but you must not process it. Note that the `sha1=` prefix must be compared case-sensitively, but the case of the hexadecimal signature value doesn't matter.
+As introduced in [Recognize and trust the platform](#s2-trust-ozwillo), the provider must recompute the signature of the request body with the same secret key and method. If signatures match, this reasonably certifies the instantiation request comes from the platform (which is the only one knowing the `instantiation_secret`) and then can be trusted. If not, you may log the request for further analysis but you must not process it. Note that the `sha1=` prefix must be compared case-sensitively, but the case of the hexadecimal signature value doesn't matter.
 
 ##### Request body
 
@@ -117,9 +117,9 @@ As introduced in [Recognize and trust Ozwillo](#s2-trust-ozwillo), the provider 
 | **instance_id** | unique and constant identifier of the instance | string |
 | **client_id** | used for authentication purposes | string |
 | **client_secret** | used for authentication purposes | string |
-| **user** | a description of [purchaser](#def-purchaser), containing at least its Ozwillo user id | User object |
-| organization | a description of the organization, containing at least Ozwillo organization id and name | Organization object |
-| **instance_registration_uri** | the endpoint that must be used to acknowledge the provisioning back to Ozwillo | URI string |
+| **user** | a description of [purchaser](#def-purchaser), containing at least its user id | User object |
+| organization | a description of the organization, containing at least organization id and name | Organization object |
+| **instance_registration_uri** | the endpoint that must be used to acknowledge the provisioning back to the platform | URI string |
 | **authorization_grant** | an OAuth 2.0 authorization grant to be able to access the Datacore during the provisioning (e.g. to get details about the organization) | AuthorizationGrant object |
 {: .request}
 
@@ -127,7 +127,7 @@ As introduced in [Recognize and trust Ozwillo](#s2-trust-ozwillo), the provider 
 
 | Field name | Field description | Type |
 | :-- | :-- | :-- |
-| **id** | Ozwillo user id of the purchaser | string |
+| **id** | user id of the purchaser | string |
 | **name** | (non unique) display name of the purchaser | string |
 {: .request}
 
@@ -135,7 +135,7 @@ As introduced in [Recognize and trust Ozwillo](#s2-trust-ozwillo), the provider 
 
 | Field name | Field description | Type |
 | :-- | :-- | :-- |
-| **id** | Ozwillo organization id of the purchasing organization | string |
+| **id** | organization id of the purchasing organization | string |
 | **name** | organization name | string |
 | **type** | "PUBLIC_BODY" or "COMPANY"  | string |
 | dc_id | Datacore identifier of the organization | string |
@@ -166,7 +166,7 @@ Authorization: Basic {base64 encoding of client_id:client_secret}
 grant_type={grant_type}&assertion={assertion}&scope={scope}
 </pre>
 
-The authorization header needs to be set as described in [Calling Ozwillo without an access_token](#s2-auth-without-token).
+The authorization header needs to be set as described in [Calling the platform without an access_token](#s2-auth-without-token).
 
 You should then receive a successful response with the following fields in the JSON payload:
 
@@ -216,7 +216,7 @@ This list is not exhaustive and is detailed in the <span class="h5">Request body
 
 ##### Request command
 
-The following HTTP request is sent from the provider to Ozwillo at the `instance_registration_uri` received in [step #1](#s3-1-ozwillo-request) (decomposed in `instance_registration_path` and `instance_registration_host` below).
+The following HTTP request is sent from the provider to the platform at the `instance_registration_uri` received in [step #1](#s3-1-ozwillo-request) (decomposed in `instance_registration_path` and `instance_registration_host` below).
 
 <pre>
 POST {instance_registration_path} HTTP/1.1
@@ -226,14 +226,14 @@ Authorization: Basic {base64 encoding of client_id:client_secret}
 Content-Type: application/json;charset=UTF-8
 </pre>
 
-The authorization header needs to be set as described in [Calling Ozwillo without an access_token](#s2-auth-without-token).
+The authorization header needs to be set as described in [Calling the platform without an access_token](#s2-auth-without-token).
 
 ##### Request body
 
 | Parameter name | Parameter description | Type |
 | :-- | :-- | :-- |
-| **instance_id** | Ozwillo application instance id | string |
-| **services** | services (at least one) to be declared on Ozwillo, more details below | array of Service objects |
+| **instance_id** | application instance id | string |
+| **services** | services (at least one) to be declared on the platform, more details below | array of Service objects |
 | **destruction_uri** | destruction endpoint of this instance | URI string |
 | **destruction_secret** | secret used to compute the destruction request signature | string |
 | status_changed_uri | status-changed endpoint of this instance | URI string |
@@ -274,7 +274,7 @@ The authorization header needs to be set as described in [Calling Ozwillo withou
 
 {::comment}Document subscription_uri and subscription_secret when they're implemented.{:/}
 
-**NB**: `redirect_uris` and `post_logout_redirect_uris` values can't be shared by different services within the same application instance. In some cases Ozwillo may identify a service thanks to either `instance_id` + `redirect_uri` or `instance_id` + `post_logout_redirect_uri` pairs. 
+**NB**: `redirect_uris` and `post_logout_redirect_uris` values can't be shared by different services within the same application instance. In some cases the platform may identify a service thanks to either `instance_id` + `redirect_uri` or `instance_id` + `post_logout_redirect_uri` pairs. 
 {: .focus .important}
 
 A few remarks on this table:
@@ -291,7 +291,7 @@ Older versions of the Kernel used boolean properties `visible` and `restricted` 
 | true | false | VISIBLE | ANYONE |
 | false | true | NEVER_VISIBLE | ALWAYS_RESTRICTED |
 
-**NB**: due to this backwards-compatibility rules, providers **should** remove/delete the `visible` and `restricted` properties from any payload they send to Ozwillo, as they otherwise risk to see the `visibility` and `access_control` properties being ignored.
+**NB**: due to this backwards-compatibility rules, providers **should** remove/delete the `visible` and `restricted` properties from any payload they send to the platform, as they otherwise risk to see the `visibility` and `access_control` properties being ignored.
 {: .focus .important}
 
 **Embedded NeededScope objects**
@@ -321,7 +321,7 @@ When a third party instance Z wants to add an event to Y on behalf of a user, it
 
 The full identifier of an instance scope is in the form `{instance_id}:{local_id}`.
 
-##### Response from Ozwillo
+##### Response from the platform
 
 Possible status codes:
 
@@ -337,7 +337,7 @@ For successful 201 responses, the body response is in the form of:
 }
 </pre>
 
-Where `back-end` and `front-end` would be the `local_id` of two declared services within the instance, and the corresponding GUIDs being their internal Ozwillo ids.
+Where `back-end` and `front-end` would be the `local_id` of two declared services within the instance, and the corresponding GUIDs being their internal ids.
 
 The 201 responses also include a `Location:` header with the URI of a resource about the created instance ([see below](#s6-api-app-instances)).
 
@@ -354,11 +354,11 @@ At this stage:
 #### #3bis Provider dismiss
 {: #s3-3bis-provider-dismiss}
 
-If the instance creation has failed for some reason during [step #2](#s3-2-provider-provisioning), the provider must issue a DELETE request on the instance registration URL so that Ozwillo does not show endless "pending" instance creation requests:
+If the instance creation has failed for some reason during [step #2](#s3-2-provider-provisioning), the provider must issue a DELETE request on the instance registration URL so that the platform does not show endless "pending" instance creation requests:
 
 ##### Request command
 
-The following HTTP request is sent from the provider to Ozwillo. 
+The following HTTP request is sent from the provider to the platform. 
 
 <pre>
 DELETE /apps/pending-instance/{instance_id} HTTP/1.1
@@ -374,7 +374,7 @@ As of March 10th, this is only available in preproduction.
 
 ##### Request command
 
-The following HTTP request is sent from Ozwillo to the provider at the `status_changed_uri` defined in [step #3](#s3-3-provider-acknowledgement) (decomposed in `status_changed_path` and `status_changed_host` below)
+The following HTTP request is sent from the platform to the provider at the `status_changed_uri` defined in [step #3](#s3-3-provider-acknowledgement) (decomposed in `status_changed_path` and `status_changed_host` below)
 
 <pre>
 POST {status_changed_path}
@@ -383,7 +383,7 @@ X-Hub-Signature: sha1={HMAC-SHA1 digest of payload}
 Content-Type: application/json;charset=UTF-8
 </pre>
 
-This scheme allows sharing the same status-changed URI and secret among several instances, but Ozwillo also supports having separate status-changed URI and secret for each instance. See more on how to check if this request reliably comes from Ozwillo depending on [verifying the signature](#ref-hmac-signature).
+This scheme allows sharing the same status-changed URI and secret among several instances, but the platform also supports having separate status-changed URI and secret for each instance. See more on how to check if this request reliably comes from the platform depending on [verifying the signature](#ref-hmac-signature).
 
 ##### Request body
 
@@ -394,11 +394,11 @@ This scheme allows sharing the same status-changed URI and secret among several 
 
 ##### Response from provider
 
-The status-changed endpoint must respond with a successful status (200, 202 or 204) in a timely manner (not necessarily waiting for the underlying resources to be actually released/archived or reacquired/restored). Ozwillo will then change the instance's state from its database and it will be impossible for users to authenticate to it, and services will disappear from the store.
+The status-changed endpoint must respond with a successful status (200, 202 or 204) in a timely manner (not necessarily waiting for the underlying resources to be actually released/archived or reacquired/restored). The platform will then change the instance's state from its database and it will be impossible for users to authenticate to it, and services will disappear from the store.
 
 If the request times out, the Kernel will change the instance's state in its database nevertheless. Any (timely) non-successful status will abort the status change (so it can be retried later).
 
-Note that the above does not describe the current behavior. Currently, the response is ignored, and the provider might not even be notified! This means that a `STOPPED` instance should continue to redirect users to Ozwillo for authentication, and should treat a successful authentication as a signal that the instance actually is now `RUNNING` (remember that when an instance is in a `STOPPED` status, it's impossible to authenticate on it).
+Note that the above does not describe the current behavior. Currently, the response is ignored, and the provider might not even be notified! This means that a `STOPPED` instance should continue to redirect users to the platform for authentication, and should treat a successful authentication as a signal that the instance actually is now `RUNNING` (remember that when an instance is in a `STOPPED` status, it's impossible to authenticate on it).
 {: .focus .important}
 
 #### Instance destruction
@@ -408,7 +408,7 @@ Instance destruction happens one week after the instance status has been changed
 
 ##### Request command
 
-The following HTTP request is sent from Ozwillo to the provider at the `destruction_uri` defined in [step #3](#s3-3-provider-acknowledgement) (decomposed in `destruction_path` and `destruction_host` below).
+The following HTTP request is sent from the platform to the provider at the `destruction_uri` defined in [step #3](#s3-3-provider-acknowledgement) (decomposed in `destruction_path` and `destruction_host` below).
 
 <pre>
 POST {destruction_path}
@@ -418,7 +418,7 @@ X-Hub-Signature: sha1={HMAC-SHA1 digest of payload}
 Content-Type: application/json;charset=UTF-8
 </pre>
 
-Similarly to status changes, this scheme allows sharing the same destruction URI and secret among several instances, but Ozwillo also supports having separate destruction URI and secret for each instance. See more on how to check if this request reliably comes from Ozwillo depending on [verifying the signature](#ref-hmac-signature).
+Similarly to status changes, this scheme allows sharing the same destruction URI and secret among several instances, but the platform also supports having separate destruction URI and secret for each instance. See more on how to check if this request reliably comes from the platform depending on [verifying the signature](#ref-hmac-signature).
 
 ##### Request body
 
@@ -428,7 +428,7 @@ Similarly to status changes, this scheme allows sharing the same destruction URI
 
 ##### Response from provider
 
-The destruction endpoint must respond with a successful status (200, 202 or 204) in a timely manner (not necessarily waiting for the underlying resources to be actually released or archived). Ozwillo will then delete the instance (and its associated resources, like services) from its database and it will be impossible to undo the change.
+The destruction endpoint must respond with a successful status (200, 202 or 204) in a timely manner (not necessarily waiting for the underlying resources to be actually released or archived). The platform will then delete the instance (and its associated resources, like services) from its database and it will be impossible to undo the change.
 
 If the request times out, the Kernel will delete the instance from its database nevertheless. Any (timely) non-successful status will abort the destruction (so it can be retried later).
 

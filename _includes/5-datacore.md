@@ -3,7 +3,7 @@
 
 As said previously, the best and easiest way to discover, try out and learn about Datacore APIs is to use [its live Playground (preproduction)](https://data.ozwillo-preprod.eu).
 
-In addition to going through the Playground's live examples, be sure so read the various other documentation available on the [Datacore wiki](https://github.com/ozwillo/ozwillo-datacore/wiki).
+In addition to going through the Playground's live examples, be sure so read the various other documentation available on the [Datacore wiki](https://github.com/SICTIAM/ozwillo-datacore/wiki).
 
 Using Datacore APIs requires the `datacore` [scope](#s1-scopes).
 
@@ -16,8 +16,8 @@ Last but not least, besides the business and technical details of using the Data
 
 In short, the way to do it is to
 
-- [design a **collaborative** data workflow](https://github.com/ozwillo/ozwillo-datacore/wiki/Developing-apps-that-collaborate-on-data) that not only minds other users but also other apps,
-- [design the rights policy](https://github.com/ozwillo/ozwillo-datacore/wiki/Permissions,-rights-and-governance) that goes with it and [setting it up](https://github.com/ozwillo/ozwillo-datacore/wiki/Configuring-Projects-and-Default-Rights).
+- [design a **collaborative** data workflow](https://github.com/SICTIAM/ozwillo-datacore/wiki/Developing-apps-that-collaborate-on-data) that not only minds other users but also other apps,
+- [design the rights policy](https://github.com/SICTIAM/ozwillo-datacore/wiki/Permissions,-rights-and-governance) that goes with it and [setting it up](https://github.com/SICTIAM/ozwillo-datacore/wiki/Configuring-Projects-and-Default-Rights).
 
 And when interacting with data always **"think Datacore"**, that is at all times having the Datacore's data in mind in addition to the application-local data :
 

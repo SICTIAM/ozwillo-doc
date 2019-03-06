@@ -1,7 +1,6 @@
-## Ozwillo documentation contributions
+## PSN documentation contributions
 
-The doc is served on <a href="http://doc.ozwillo.com" target="_blank">doc.ozwillo.com</a>
-Follow modifications on the github served gh-pages branch on twitter [@OzwilloDev](https://twitter.com/OzwilloDev)
+The doc is served on <a href="https://sictiam.github.io/psn-doc/" target="_blank">https://sictiam.github.io/psn-doc/</a>
 
 ### Installation
 
